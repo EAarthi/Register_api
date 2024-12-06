@@ -61,7 +61,7 @@ app.post("/register", (req, res) => {
   });
 });
 app.get("/read", (req, res) => {
-  const query = "SELECT * FROM employees";
+  const query = "SELECT * FROM employee";
   db.query(query, (err, result) => {
     if (err) {
       console.error(err);
