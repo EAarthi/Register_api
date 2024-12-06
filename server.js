@@ -60,6 +60,7 @@ app.post("/register", (req, res) => {
     });
   });
 });
+//Fetching data from the database
 app.get("/read", (req, res) => {
   const query = "SELECT * FROM employee";
   db.query(query, (err, result) => {
