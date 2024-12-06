@@ -21,7 +21,7 @@ db.connect((err) => {
     console.error("Database connection failed: " + err.stack);
     return;
   }
-  console.log("Connected to MySQL database.");
+  console.log("Connected to AWS Cloud database.");
 });
 
 app.post("/register", (req, res) => {
@@ -60,6 +60,16 @@ app.post("/register", (req, res) => {
     });
   });
 });
+app.get("/read", (req, res) => {
+  const query = "SELECT * FROM employees";
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error retrieving employees" });
+    }
+    res.status(200).json(result);
+  });
+})
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
