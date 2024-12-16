@@ -21,7 +21,7 @@ db.connect((err) => {
     console.error("Database connection failed: " + err.stack);
     return;
   }
-  console.log("Connected to AWS Cloud database.");
+  console.log("Connected to MySQL database.");
 });
 
 app.post("/register", (req, res) => {
@@ -32,7 +32,7 @@ app.post("/register", (req, res) => {
   }
 
   // Check if employee ID and email already exists
-  const checkEmployeeQuery = `SELECT * FROM employee WHERE employee_id = ? OR email = ?`;
+  const checkEmployeeQuery = `SELECT * FROM employees WHERE employee_id = ? OR email = ?`;
   db.query(checkEmployeeQuery, [employee_id, email], (err, result) => {
     if (err) {
       console.error(err);
@@ -48,7 +48,7 @@ app.post("/register", (req, res) => {
       }
     }
     // Insert new employee record
-    const query = `INSERT INTO employee (name, employee_id, email, phone, department, date_of_joining, role)
+    const query = `INSERT INTO employees (name, employee_id, email, phone, department, date_of_joining, role)
                    VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     db.query(query, [name, employee_id, email, phone, department, date_of_joining, role], (err, result) => {
@@ -60,9 +60,8 @@ app.post("/register", (req, res) => {
     });
   });
 });
-//Fetching data from the database
 app.get("/read", (req, res) => {
-  const query = "SELECT * FROM employee";
+  const query = "SELECT * FROM employees";
   db.query(query, (err, result) => {
     if (err) {
       console.error(err);
@@ -71,6 +70,49 @@ app.get("/read", (req, res) => {
     res.status(200).json(result);
   });
 })
+
+// Update employee details
+app.put("/update/:id", (req, res) => {
+  const { name, employee_id, email, phone, department, date_of_joining, role } = req.body;
+  const employeeId = req.params.id;
+
+  if (!name || !employee_id || !email || !phone || !department || !date_of_joining || !role) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const query = `
+    UPDATE employees SET name = ?, employee_id = ?, email = ?, phone = ?, department = ?, date_of_joining = ?, role = ?
+    WHERE employee_id = ?
+  `;
+
+  db.query(query, [name, employee_id, email, phone, department, date_of_joining, role, employeeId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error updating employee" });
+    }
+    res.status(200).json({ message: "Employee updated successfully" });
+  });
+});
+
+
+// Delete employee details
+app.delete("/delete/:id", (req, res) => {
+  const employeeId = req.params.id;
+
+  const query = "DELETE FROM employees WHERE employee_id = ?";
+  db.query(query, [employeeId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error deleting employee" });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    res.status(200).json({ message: "Employee deleted successfully" });
+  });
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
