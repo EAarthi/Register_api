@@ -113,7 +113,7 @@ app.delete("/delete/:id", (req, res) => {
 });
 
 
-//listen to port
+//listen to port gg
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
